@@ -7,7 +7,9 @@ module.exports.initialize = function(app, passport, router ){
 	router.get('/logout', login.logout);
 	router.post('/signup', passport.authenticate('local-signup'), login.signup);
 	router.post('/login',passport.authenticate('local-login'), login.login);
-	router.get('/account', home.getAccount);
+	router.get('/account', isLoggedIn, login.getAccount);
+	router.put('/account', isLoggedIn, login.updateAccount);
+	router.post('/calendar', isLoggedIn, home.makeCalendar);
 
 	app.use('/', router);
 }
@@ -16,5 +18,5 @@ function isLoggedIn(req,res,next){
 		return next();
 	}
 	console.log('in isLoggedIn');
-	res.send('login');
+	res.send({redirect:'login'});
 }

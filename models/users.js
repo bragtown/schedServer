@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var UserSchema = new Schema({
 	fName:{type:String},
 	lName:{type:String},
+	curCalendar:{type:String},
 	local:{
 		email:String,
 		password:String
