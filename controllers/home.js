@@ -7,7 +7,7 @@ module.exports = {
 		res.send({redirect:"home"});
 	},
 	makeCalendar:function(req,res){
-		Calendar.findOne({'users':req.body.calName}, function(err, calendar){
+		Calendar.findOne({'name':req.body.calName}, function(err, calendar){
 			if(err)
 				console.log(err)
 			else if(calendar){
@@ -22,7 +22,7 @@ module.exports = {
 						else{
 							var newCal = new Calendar();
 							newCal.name = req.body.calName;
-							newCal.users = [req.user.email];
+							newCal.users = [req.user.local.email];
 							newCal.save(function(err){
 								if(err)
 									console.log("err:",err);
