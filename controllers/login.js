@@ -35,6 +35,27 @@ module.exports = {
 		console.log(req.body);
 		User.findOne({'local.email':req.user.local.email}, function(err, user){
 
+			var change = false;
+			var	changeMsg = '';
+
+			var updateCalendar = function(){
+				if(user.curCalendar != req.body.curCalendar && user.curCalendar != undefined){
+					//ensure the calendar actually exists
+					Calendar.find({'name': req.body.curCalendar, 'users':{$in:[req.user.local.email]}}, function(err, calendar){
+						if(err)
+							console.log(err);
+						else{
+							//ensure that the user has access to that calendar
+							console.log(calendar);
+							user.curCalendar = calendar.name;
+							updateRest();
+						}
+					})
+				}
+				else{
+					updateRest();
+				}
+			}
 			var updateRest = function(){
 				if(user.fName != req.body.fName && req.body.fName != undefined){
 					change = true;
@@ -50,18 +71,6 @@ module.exports = {
 					change = true;
 					user.local.password = user.generateHash(req.body.password);
 					changeMsg += 'password,';
-				}
-				if(user.curCalendar != req.body.curCalendar && user.curCalendar != undefined){
-					//ensure the calendar actually exists
-					Calendar.find({'name': req.body.curCalendar, 'users':{$in:[req.user.local.email]}}, function(err, calendar){
-						if(err)
-							console.log(err);
-						else{
-							//ensure that the user has access to that calendar
-							console.log(calendar);
-							user.curCalendar = calendar.name;
-						}
-					})
 				}
 				if(change){
 					user.save(function(err){
@@ -81,37 +90,41 @@ module.exports = {
 				}
 			}
 
-			var change = false;
-			var	changeMsg = '';
-			if(req.user.local.email != req.body.email && req.body.email != undefined){
-				User.findOne({'local.email': req.body.email}, function(err, nUser){
-					console.log("login.32 ", err == true, nUser == true);
-					if(err){
-						res.send({
-							fName: user.fName,
-							lName: user.lName,
-							email: user.email,
-							message: "err"
-						});
-					}
-					else if(nUser){
-						res.send({
-							fName: user.fName,
-							lName: user.lName,
-							email: user.email,
-							message: "email in use!"
-						});
-					}
-					else{
-						change = true;
-						console.log(change);
-						user.local.email = req.body.email;
-						changeMsg += 'email,';
-					}
-					updateRest();
-				});
+			var updateUsername = function(){
+				if(req.user.local.email != req.body.email && req.body.email != undefined){
+					User.findOne({'local.email': req.body.email}, function(err, nUser){
+						console.log("login.32 ", err == true, nUser == true);
+						if(err){
+							res.send({
+								fName: user.fName,
+								lName: user.lName,
+								email: user.email,
+								message: "err"
+							});
+						}
+						else if(nUser){
+							res.send({
+								fName: user.fName,
+								lName: user.lName,
+								email: user.email,
+								message: "email in use!"
+							});
+						}
+						else{
+							change = true;
+							console.log(change);
+							user.local.email = req.body.email;
+							changeMsg += 'email,';
+							updateCalendar()
+						}
+					});
+				}
+				else{
+					updateCalendar();
+				}
 			}
-			else{updateRest()}
+
+			updateUsername();
 		});
 	}
 }
