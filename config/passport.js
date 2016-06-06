@@ -1,5 +1,6 @@
 var LocalStrategy = require('passport-local');
 var User = require('../models/users');
+var Calendar = require('../models/calendar')
 var configAuth = require('./auth');
 module.exports = function(passport){
     // required for persistent login sessions
@@ -74,14 +75,33 @@ module.exports = function(passport){
 							newUser.lName = req.body.lName;
 							newUser.local.email = email;
 							newUser.local.password = newUser.generateHash(password);
-							newUser.save(function(err){
-								if(err){
-									console.log('err:', err);
-									throw err;
-								}
-								console.log("Saving User");
-								return done(null, newUser);
-							});
+
+							var findCalendar = function(){
+								Calendar.findOne({'users': {$in:[email]}}, function(err, calendar){
+									if(err){
+										console.log('err:', err);
+									}
+									else if(calendar){
+										newUser.curCalendar = calendar.name;
+										save()
+									}
+									else{
+										save()
+									}
+
+								})
+							}
+							var save = function(){
+								newUser.save(function(err){
+									if(err){
+										console.log('err:', err);
+										throw err;
+									}
+									console.log("Saving User");
+									return done(null, newUser);
+								});
+							}
+							findCalendar();
 						}
 					});
 				});

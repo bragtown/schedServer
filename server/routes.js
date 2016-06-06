@@ -10,6 +10,12 @@ module.exports.initialize = function(app, passport, router ){
 	router.get('/account', isLoggedIn, login.getAccount);
 	router.put('/account', isLoggedIn, login.updateAccount);
 	router.post('/calendar', isLoggedIn, home.makeCalendar);
+	router.get('/queued', isLoggedIn, home.getQueued);
+	router.get('/scheduled', isLoggedIn, home.getScheduled);
+	router.post('/events', isLoggedIn, home.addEvent);
+	router.put('/events', isLoggedIn, home.updateEvent);
+	router.delete('/events/:eventId', isLoggedIn, home.deleteEvent);
+	router.put('/calendar', isLoggedIn, home.updateCalendarUsers)
 
 	app.use('/', router);
 }
