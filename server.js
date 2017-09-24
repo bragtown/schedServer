@@ -6,7 +6,8 @@ app.set('port', process.env.PORT || 3000);  //listen on the port
 app.set('views', __dirname + '/views'); 
 app = config(app);
 
-mongoose.connect('mongodb://localhost/passportPractice');
+// mongoose.connect('mongodb://user:cheese@jello.modulusmongo.net:27017/uxiteM7o');
+mongoose.connect('mongodb://localhost:27017/scheduler');
 mongoose.connection.on('open', function(){
 	console.log('Mongoose connected!');
 });
